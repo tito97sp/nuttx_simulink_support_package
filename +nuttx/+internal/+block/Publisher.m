@@ -20,7 +20,6 @@ classdef Publisher < matlab.System & ...
 
     %#codegen
 
-    
     properties (Nontunable)
         %uORBTopic Topic to publish to
         %  This system object will use uORBTopic as specified in both
@@ -41,12 +40,10 @@ classdef Publisher < matlab.System & ...
         %   Not really used; only maintained for symmetry with Subscriber
         SLBusName = ''
     end
-
     properties (Nontunable,Access=private)
         ConnectHandle
         uORBIOHandle
     end
-    
     properties(Constant,Access=private)
         % Name of header file with declarations for variables and types
         % referred to in code emitted by setupImpl and stepImpl.
@@ -59,12 +56,10 @@ classdef Publisher < matlab.System & ...
 
         % event File handler
         orbAdvertiseObj
-
         orbMetadataObj
     end
 
     methods
-        % Constructor
         function obj = Publisher(varargin)
             % Enable code to be generated even this file is p-coded
             coder.allowpcode('plain');
@@ -98,16 +93,44 @@ classdef Publisher < matlab.System & ...
     
     methods (Access=protected)
 
+        function num = getNumInputsImpl(~)
+            num = 1;
+        end
+        
+        function num = getNumOutputsImpl(~)
+            num = 0;
+        end
+         
+        function flag = isInactivePropertyImpl(~,propertyName)
+            flag = true;
+
+            if strcmp(propertyName,'uORBTopic')
+                flag = false;
+            end
+            if strcmp(propertyName,'uORBTopicInstance')
+                flag = false;
+            end
+
+            if strcmp(propertyName,'MessageQueueLen')
+                flag = false;
+            end
+        end
+    
+    end
+
+    methods (Access = protected)
+        %% Common functions
+
         function sts = getSampleTimeImpl(obj)
                 % Enable this system object to inherit constant ('inf') sample times
                 sts = createSampleTime(obj, 'Type', 'Inherited', 'Allow', 'Constant');
             end
 
-        function setupImpl(obj) %#ok<MANU>
+        function setupImpl(obj, busstruct) 
                     % setupImpl is called when model is being initialized at the
         % start of a simulation
 
-        if coder.target('MATLAB')
+            if coder.target('MATLAB')
             %Connected IO
             % if matlabshared.svd.internal.isSimulinkIoEnabled
             %     try
@@ -162,9 +185,12 @@ classdef Publisher < matlab.System & ...
             coder.internal.errorIf(true, 'nuttx:sysobj:UnsupportedCodegenMode');
         end
         end
+
+
+        function stepImpl(obj,busstruct)
+        % Buses are treated as structures
         
-        function message = stepImpl(obj)   %#ok<MANU>
-            if coder.target('MATLAB')
+        if coder.target('MATLAB')
                 %Connected I/O
                 % if matlabshared.svd.internal.isSimulinkIoEnabled
                 %     try
@@ -183,9 +209,11 @@ classdef Publisher < matlab.System & ...
                             coder.rref(obj.orbAdvertiseObj), ...
                             coder.rref(busstruct));
             end
+
         end
         
-        function releaseImpl(obj) %#ok<MANU>
+        %%
+        function releaseImpl(obj) 
             if coder.target('MATLAB')
                 %Connected I/O
                 % if matlabshared.svd.internal.isSimulinkIoEnabled
@@ -196,49 +224,7 @@ classdef Publisher < matlab.System & ...
                 coder.ceval('uORB_write_terminate', coder.rref(obj.orbAdvertiseObj));
             end
         end
-    end
-    
-    methods (Access=protected)
-        %% Define output properties
-        function num = getNumInputsImpl(~)
-            num = 1;
-        end
-        
-        function num = getNumOutputsImpl(~)
-            num = 0;
-        end
-         
-        function flag = isInactivePropertyImpl(~,propertyName)
-            flag = true;
 
-            if strcmp(propertyName,'uORBTopic')
-                flag = false;
-            end
-            if strcmp(propertyName,'uORBTopicInstance')
-                flag = false;
-            end
-
-            if strcmp(propertyName,'MessageQueueLen')
-                flag = false;
-            end
-        end
-
-    end
-    
-    methods (Static, Access=protected)
-        %% Simulink customization functions
-        function header = getHeaderImpl
-            header = matlab.system.display.Header(mfilename('class') ,'ShowSourceLink',false);
-        end
-
-        function simMode = getSimulateUsingImpl(~)
-            simMode = 'Interpreted execution';
-        end
-        
-        function flag = showSimulateUsingImpl
-            % Return false if simulation mode hidden in System block dialog
-            flag = false;
-        end
     end
     
     methods (Static)
@@ -251,6 +237,7 @@ classdef Publisher < matlab.System & ...
         end
         
         function updateBuildInfo(buildInfo, context)
+        % Update the build-time buildInfo
             if context.isCodeGenTarget('rtw')
                 % Update buildInfo
                 srcDir = fullfile(fileparts(mfilename('fullpath')),'src'); %#ok<NASGU>
@@ -267,4 +254,23 @@ classdef Publisher < matlab.System & ...
             end
         end
     end
+
+    methods(Static, Access = protected)
+        %% Simulink customization functions
+        function header = getHeaderImpl
+            header = matlab.system.display.Header(mfilename('class') ,'ShowSourceLink',false);
+        end
+
+        function simMode = getSimulateUsingImpl
+            % Return only allowed simulation mode in System block dialog
+            simMode = "Interpreted execution";
+        end
+        
+        function flag = showSimulateUsingImpl
+            % Return false if simulation mode hidden in System block dialog
+            flag = false;
+        end
+
+    end
+
 end
