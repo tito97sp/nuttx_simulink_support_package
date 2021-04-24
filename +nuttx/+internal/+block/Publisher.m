@@ -190,18 +190,18 @@ classdef Publisher < matlab.System & ...
         function stepImpl(obj,busstruct)
         % Buses are treated as structures
         
-        if coder.target('MATLAB')
-                %Connected I/O
-                % if matlabshared.svd.internal.isSimulinkIoEnabled
-                %     try
-                %         uORBWriteMessage(obj.uORBIOHandle, obj.ConnectHandle.IoProtocol, obj.orbMetadataObj, ...
-                %                          obj.orbAdvertiseObj, busstruct);
-                %     catch exception
-                %         %call releaseImpl case of error
-                %         releaseImpl(obj)
-                %         throw(exception);
-                %     end
-                % end
+            if coder.target('MATLAB')
+                    %Connected I/O
+                    % if matlabshared.svd.internal.isSimulinkIoEnabled
+                    %     try
+                    %         uORBWriteMessage(obj.uORBIOHandle, obj.ConnectHandle.IoProtocol, obj.orbMetadataObj, ...
+                    %                          obj.orbAdvertiseObj, busstruct);
+                    %     catch exception
+                    %         %call releaseImpl case of error
+                    %         releaseImpl(obj)
+                    %         throw(exception);
+                    %     end
+                    % end
             elseif coder.target('Rtw')
                 % The datatype of msg will be derived from the input to the block
                 coder.ceval('uORB_write_step', ...
@@ -239,18 +239,17 @@ classdef Publisher < matlab.System & ...
         function updateBuildInfo(buildInfo, context)
         % Update the build-time buildInfo
             if context.isCodeGenTarget('rtw')
-                % Update buildInfo
-                srcDir = fullfile(fileparts(mfilename('fullpath')),'src'); %#ok<NASGU>
-                includeDir = fullfile(fileparts(mfilename('fullpath')),'include');
-                addIncludePaths(buildInfo,includeDir);
-                % Use the following API's to add include files, sources and
-                % linker flags
-                %addIncludeFiles(buildInfo,'uorbtopic.h',includeDir);
-                %addSourceFiles(buildInfo,'uorbtopic.c',srcDir);
-                %addLinkFlags(buildInfo,{'-lSource'});
-                %addLinkObjects(buildInfo,'sourcelib.a',srcDir);
-                %addCompileFlags(buildInfo,{'-D_DEBUG=1'});
-                %addDefines(buildInfo,'MY_DEFINE_1')
+                spkgRootDir = fileparts(strtok(mfilename('fullpath'), '+'));;
+                % Include Paths
+                addIncludePaths(buildInfo, fullfile(spkgRootDir, 'include'));
+                %addIncludeFiles(buildInfo, 'MW_SerialRead.h');
+                % Source Files
+                systemTargetFile = get_param(buildInfo.ModelName,'SystemTargetFile');
+                if isequal(systemTargetFile,'nuttx_ec.tlc')
+                    % Add the following when not in rapid-accel simulation
+                    addSourcePaths(buildInfo, fullfile(spkgRootDir, 'src'));
+                    addSourceFiles(buildInfo, 'MW_uORB_Write.cpp', fullfile(spkgRootDir, 'src'));
+                end
             end
         end
     end

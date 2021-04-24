@@ -10,7 +10,7 @@
 
 #else
 
-//#include "MW_uORB_Init.h"
+#include "MW_uORB_Init.h"
 
 #ifdef __cplusplus
 

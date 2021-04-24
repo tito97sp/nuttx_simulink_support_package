@@ -1,0 +1,316 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% Abstract:
+%%   Custom file processing to generate a "main" file.
+%%
+%% Copyright 1994-2014 The MathWorks, Inc.
+%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%selectfile NULL_FILE
+
+%function createNuttxModuleHeader() void
+
+  %assign hFile = LibCreateSourceFile("Header", "Custom", "ert_main")
+
+  %openfile tmpBuf
+    #include <getopt.h>
+
+    #include <platform_common/module.h>
+    #include <uORB/Subscription.hpp>
+    #include <uORB/Publication.hpp>
+
+    #include "rtwtypes.h"
+
+    extern "C" __EXPORT int_T %<LibGetMdlPubHdrBaseName()>_main(int_T argc, char_T *argv[]);
+    
+  %closefile tmpBuf
+
+  %<LibSetSourceFileSection(hFile, "Includes", tmpBuf)>
+  
+  %openfile tmpBuf
+    class %<LibGetMdlPubHdrBaseName()>Module : public ModuleBase<%<LibGetMdlPubHdrBaseName()>Module>
+    {
+    public:
+      %<LibGetMdlPubHdrBaseName()>Module(){}
+
+      virtual ~%<LibGetMdlPubHdrBaseName()>Module() = default;
+
+      /** @see ModuleBase */
+      static int_T task_spawn(int_T argc, char_T *argv[]);
+
+      /** @see ModuleBase */
+      static %<LibGetMdlPubHdrBaseName()>Module *instantiate(int_T argc, char_T *argv[]);
+
+      /** @see ModuleBase */
+      static int_T custom_command(int_T argc, char_T *argv[]);
+
+      /** @see ModuleBase */
+      static int_T print_usage(const char_T *reason = nullptr);
+
+      /** @see ModuleBase::run() */
+      void run() override;
+
+      /** @see ModuleBase::print_status() */
+      //int_T print_status() override;
+
+    private:
+
+      struct sigaction   act;
+      struct sigaction   oact;
+      struct sigevent    notify;
+      struct itimerspec  timer;
+      timer_t            timerid;
+      int                status;
+      
+      struct sched_param sparam;
+      int prio_min;
+      int prio_max;
+      int prio_mid;
+      pthread_attr_t attr;
+
+    };
+  %closefile tmpBuf
+
+  %<LibSetSourceFileSection(hFile, "Typedefs", tmpBuf)>
+
+
+%endfunction
+
+%function createNuttxModuleSource() void
+  
+  %assign cFile = LibCreateSourceFile("Source", "Custom", "ert_main")
+  
+  %openfile tmpBuf
+  #include <signal.h>
+  #include <sched.h>
+  #include <time.h>
+  #include <pthread.h>
+  #include <errno.h>
+
+  #include <platform_common/log.h>
+
+  #include "ert_main.h"
+  #include "%<LibGetMdlPubHdrBaseName()>.h"
+
+  %closefile tmpBuf
+    
+  %<LibSetSourceFileSection(cFile, "Includes", tmpBuf)>
+
+
+  %openfile tmpBuf
+
+  %% Get fundamental step time
+  %assign SAMPLETIME = CompiledModel.FundamentalStepSize
+  %if SAMPLETIME < 0.00005
+      %% Even 50 microseconds is too quick for Arduino
+      %<LibReportError("The minimum supported sample time is 50 microseconds. Change the Sample time parameter in blocks that use incorrect sample times.")>
+  %endif
+  %assign SampleRate  = CAST("Number", %<SAMPLETIME> * 1000000)
+  #define STEP_SIZE %<SampleRate>UL /* Sample Time in microseconds */
+
+  static pthread_mutex_t %<LibGetMdlPubHdrBaseName()>_mutex     = PTHREAD_MUTEX_INITIALIZER;
+  static pthread_cond_t  %<LibGetMdlPubHdrBaseName()>_condition = PTHREAD_COND_INITIALIZER;
+
+  
+
+  int_T %<LibGetMdlPubHdrBaseName()>Module::custom_command(int_T argc, char_T *argv[])
+  {
+    return print_usage("unknown command\n");
+  }
+
+  int_T %<LibGetMdlPubHdrBaseName()>Module::print_usage(const char_T *reason)
+  {
+    return 0;
+  }
+
+  int_T %<LibGetMdlPubHdrBaseName()>Module::task_spawn(int_T argc, char_T *argv[])
+  {
+      _task_id = os_task_spawn_cmd("%<LibGetMdlPubHdrBaseName()>",
+                SCHED_DEFAULT,
+                SCHED_PRIORITY_DEFAULT,
+                1024,
+                (os_main_t)&run_trampoline,
+                (char_T *const *)argv);
+    
+
+    if (_task_id < 0) {
+      _task_id = -1;
+      return -errno;
+    }
+
+    return 0;
+  }
+
+  %<LibGetMdlPubHdrBaseName()>Module *%<LibGetMdlPubHdrBaseName()>Module::instantiate(int_T argc, char_T *argv[])
+  {
+    %<LibGetMdlPubHdrBaseName()>Module *instance = new %<LibGetMdlPubHdrBaseName()>Module();
+
+    if (instance == nullptr) {
+      printf("alloc failed\n");
+    }
+
+    return instance;
+  }
+
+  static void %<LibGetMdlPubHdrBaseName()>_timer_handler(int signo)
+{
+  int status;
+
+  /* Check signo */
+
+  if (signo == SIGALRM) 
+  {
+      pthread_mutex_lock(&%<LibGetMdlPubHdrBaseName()>_mutex);
+      if(pthread_cond_broadcast(&%<LibGetMdlPubHdrBaseName()>_condition) != OK)
+      {
+          printf("ERROR\n");
+      }
+      pthread_mutex_unlock(&%<LibGetMdlPubHdrBaseName()>_mutex);
+      
+  }
+  else
+  {
+    status = 0;
+    /* Wake sleeping consumer */
+    //if (status != OK)
+      //ERR("pthread_cond_signal error.");
+  }
+}
+
+static void *%<LibGetMdlPubHdrBaseName()>_main_timer_thread(FAR void *para)
+{
+  int status;
+  
+  %<LibCallModelInitialize()>\
+
+  while (1)
+    {
+      status = pthread_mutex_lock(&%<LibGetMdlPubHdrBaseName()>_mutex);
+      status = pthread_cond_wait(&%<LibGetMdlPubHdrBaseName()>_condition, &%<LibGetMdlPubHdrBaseName()>_mutex);
+      status = pthread_mutex_unlock(&%<LibGetMdlPubHdrBaseName()>_mutex);
+
+      DEBUG("%<LibGetMdlPubHdrBaseName()> step\n");
+      %<LibCallModelStep(0)>\
+    }
+  
+  %<LibCallModelTerminate()>\
+  pthread_exit(NULL);
+  return NULL; /* Non-reachable -- needed for some compilers */
+}
+
+
+  void %<LibGetMdlPubHdrBaseName()>Module::run()
+  {
+    printf("%<LibGetMdlPubHdrBaseName()> started.\n");
+
+    /* Set timer timeout action */
+
+    act.sa_handler = &%<LibGetMdlPubHdrBaseName()>_timer_handler;
+    act.sa_flags  = SA_SIGINFO;
+
+    (void)sigfillset(&act.sa_mask);
+    (void)sigdelset(&act.sa_mask, SIGALRM);
+
+    status = sigaction(SIGALRM, &act, &oact);
+    if (status != OK)
+    {
+      printf("%s: ERROR sigaction failed, status=%d\n" ,__FUNCTION__, status);
+      goto errorout;
+    }
+
+    /* Create the POSIX timer */
+
+    notify.sigev_notify            = SIGEV_SIGNAL;
+    notify.sigev_signo             = SIGALRM;
+    notify.sigev_value.sival_int   = 0;
+  #ifdef CONFIG_SIG_EVTHREAD
+    notify.sigev_notify_function   = NULL;
+    notify.sigev_notify_attributes = NULL;
+  #endif
+
+    status = timer_create(CLOCK_MONOTONIC, &notify, &timerid);
+    if (status != OK)
+    {
+      printf("%s: timer_create failed, errno=%d\n",__FUNCTION__, errno);
+      goto errorout;
+    }
+
+    /* Start the POSIX timer */
+
+    timer.it_value.tv_sec = (STEP_SIZE/USEC_PER_SEC);
+    timer.it_value.tv_nsec = (STEP_SIZE%USEC_PER_SEC);
+    timer.it_interval.tv_sec = (STEP_SIZE/USEC_PER_SEC);
+    timer.it_interval.tv_nsec = (STEP_SIZE%USEC_PER_SEC);
+
+    status = timer_settime(timerid, 0, &timer, NULL);
+    if (status != OK)
+    {
+      printf("%s: timer_settime failed, errno=%d\n",__FUNCTION__, errno);
+      goto errorout;
+    }  
+
+    /* Set main thread */
+
+    prio_min = sched_get_priority_min(SCHED_FIFO);
+    prio_max = sched_get_priority_max(SCHED_FIFO);
+    prio_mid = (prio_min + prio_max) / 2;
+
+    sparam.sched_priority = (prio_mid + prio_max) / 2;
+    status = pthread_attr_init(&attr);
+    if (status != OK)
+    {
+      printf("ERROR: pthread_attr_init failed \n");
+    }
+
+    status = pthread_attr_setschedparam(&attr,&sparam);
+    if (status != OK)
+    {
+      printf("ERROR: pthread_attr_setschedparam failed.\n");
+      goto errorout;
+    }
+
+    pthread_t main_timer_threadid;
+    status = pthread_create(&main_timer_threadid, &attr, %<LibGetMdlPubHdrBaseName()>_main_timer_thread, NULL);
+    if (status != OK)
+    {
+      printf("ERROR: thread creation failed\n");
+      goto errorout;
+    }
+
+    for(;;)
+    {
+      sched_yield();
+    }
+    
+    errorout:
+      pthread_mutex_destroy(&%<LibGetMdlPubHdrBaseName()>_mutex);
+      pthread_cond_destroy(&%<LibGetMdlPubHdrBaseName()>_condition);
+  }
+
+  int_T %<LibGetMdlPubHdrBaseName()>_main(int_T argc, char_T *argv[])
+  {   
+    return %<LibGetMdlPubHdrBaseName()>Module::main(argc, argv);
+  }
+
+  %closefile tmpBuf
+  %<LibSetSourceFileSection(cFile, "Functions", tmpBuf)>
+
+%endfunction
+
+%function FcnSingleTaskingMain() void
+
+  
+  %if GenerateSampleERTMain
+    %assign CompiledModel.GenerateSampleERTMain = TLC_FALSE
+  %endif
+
+  %if LibIsModelReferenceTarget()
+    %return
+  %endif
+
+  %<createNuttxModuleHeader()>
+  %<createNuttxModuleSource()>
+  
+%endfunction
+
+

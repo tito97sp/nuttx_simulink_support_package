@@ -56,7 +56,7 @@ classdef CommonUtility
         end
 
         function baseDir = getNuttxFirmwareDir()
-            baseDir = '/home/asanchez/Escritorio/GIT/project_template';
+            baseDir = '/home/asanchez/GIT/project_template';
             if isempty(baseDir)
                 nuttx.internal.util.CommonUtility.localizedError('nuttx:cgen:NuttxBaseDirEmpty');
             end

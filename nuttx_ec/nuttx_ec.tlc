@@ -1,0 +1,110 @@
+%% SYSTLC: Nuttx EC Target TMF: nuttx_ec.tmf MAKE: make_rtw \
+%% EXTMODE: ext_comm
+
+%% Copyright 2013-2014 The MathWorks, Inc.
+
+%selectfile NULL_FILE
+
+%assign CodeFormat = "Embedded-C"
+
+%assign TargetType = "RT"
+%assign Language   = "C"
+%assign AutoBuildProcedure = !GenerateSampleERTMain
+
+%% The model_SetEventsForThisBaseRate function is not required for the
+%% VxWorks environment, i.e., when using an operating system.
+%assign SuppressSetEventsForThisBaseRateFcn = (TargetOS == "Nuttx")
+%assign InlineSetEventsForThisBaseRateFcn  = TLC_TRUE
+%assign SuppressMultiTaskScheduler = TLC_TRUE
+%%assign UseRTOS = TLC_FALSE
+%%include "commontargetlib.tlc"
+%include "codegenentry.tlc"
+
+%% The contents between 'BEGIN_RTW_OPTIONS' and 'END_RTW_OPTIONS' in this file
+%% are used to maintain backward compatibility to R13 and preR13 custom target
+%% file only.  If you want to use this file as a template to develop your
+%% own system target file, you need to remove the 'CONFIGSET_TARGET_COMPONENT'
+%% section at the end of this file.
+%%
+/%
+  BEGIN_RTW_OPTIONS
+
+  oIdx = 1;
+
+  rtwoptions(oIdx).prompt         = 'Nuttx options';
+  rtwoptions(oIdx).type           = 'Category';
+  rtwoptions(oIdx).enable         = 'on';
+  rtwoptions(oIdx).default        = 4;  % number of items under this category
+                                        % excluding this one.
+  rtwoptions(oIdx).popupstrings  = '';
+  rtwoptions(oIdx).tlcvariable   = '';
+  rtwoptions(oIdx).tooltip       = '';
+  rtwoptions(oIdx).callback      = '';
+  rtwoptions(oIdx).opencallback  = '';
+  rtwoptions(oIdx).closecallback = '';
+  rtwoptions(oIdx).makevariable  = '';
+
+  oIdx = oIdx + 1;
+
+  rtwoptions(oIdx).prompt         = 'Download to board';
+  rtwoptions(oIdx).type           = 'Checkbox';
+  rtwoptions(oIdx).default        = 'on';
+  rtwoptions(oIdx).tlcvariable    = 'DownloadToBoard';
+  rtwoptions(oIdx).makevariable   = 'DOWNLOAD_TO_BOARD';
+  rtwoptions(oIdx).callback       = '';
+  rtwoptions(oIdx).tooltip        = sprintf(['Select this if you want to download the code to the board']);
+
+  oIdx = oIdx + 1;
+
+  rtwoptions(oIdx).prompt         = 'makefile Parallel Execution';
+  rtwoptions(oIdx).type           = 'Checkbox';
+  rtwoptions(oIdx).default        = 'off';
+  rtwoptions(oIdx).tlcvariable    = 'ParallelExecution';
+  rtwoptions(oIdx).makevariable   = '';
+  rtwoptions(oIdx).callback       = '';
+  rtwoptions(oIdx).tooltip        = sprintf(['Uses ''-j'' option for the makefile.']); 
+  
+  oIdx = oIdx + 1;
+
+  rtwoptions(oIdx).prompt         = 'avr-gcc options';
+  rtwoptions(oIdx).type           = 'Edit';
+  rtwoptions(oIdx).default        = '';
+  rtwoptions(oIdx).tlcvariable    = 'DialogOptions';
+  rtwoptions(oIdx).makevariable   = 'DIALOG_OPTIONS';
+  rtwoptions(oIdx).callback       = '';
+  rtwoptions(oIdx).tooltip        = sprintf(['Options passed directly to avr-gcc compiler\nExample: -O2 -flto\nNote: Link Time Optimization (-flto) is available first\nin gcc 4.7 series and requires to use alternative compiler.']);
+
+  oIdx = oIdx + 1;
+
+  rtwoptions(oIdx).prompt         = 'Alternative gcc compiler';
+  rtwoptions(oIdx).type           = 'Edit';
+  rtwoptions(oIdx).default        = '';
+  rtwoptions(oIdx).tlcvariable    = 'AlternativeGCC';
+  rtwoptions(oIdx).makevariable   = 'ALTERNATIVE_GCC';
+  rtwoptions(oIdx).callback       = '';
+  rtwoptions(oIdx).tooltip        = sprintf(['Newer avr-gcc compiler as one comming with Arduino software\nUse it like: c:\\avr-gcc-4.8-mingw32\\bin']);
+
+
+  if true  % deactivated for the moment
+  oIdx = oIdx + 1;
+
+  rtwoptions(oIdx).prompt         = 'Use RTOS';
+  rtwoptions(oIdx).type           = 'Checkbox';
+  rtwoptions(oIdx).default        = 'off';
+  rtwoptions(oIdx).tlcvariable    = 'UseRTOS';
+  rtwoptions(oIdx).makevariable   = 'USERTOS';
+  rtwoptions(oIdx).callback       = '';
+  rtwoptions(oIdx).tooltip        = sprintf(['Use RTOS operating system instead of bare board system.']);
+  end
+
+  %------------------------------------%
+  % Configure code generation settings %
+  %------------------------------------%
+
+  rtwgensettings.BuildDirSuffix = '_nuttx';
+  rtwgensettings.Version = '1';
+  rtwgensettings.DerivedFrom = 'ert.tlc';
+  rtwgensettings.SelectCallback = 'nuttx_ec_select_callback_handler(hDlg, hSrc)';
+
+  END_RTW_OPTIONS
+ %/
