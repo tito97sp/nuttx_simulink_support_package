@@ -239,7 +239,7 @@ classdef Publisher < matlab.System & ...
         function updateBuildInfo(buildInfo, context)
         % Update the build-time buildInfo
             if context.isCodeGenTarget('rtw')
-                spkgRootDir = fileparts(strtok(mfilename('fullpath'), '+'));;
+                spkgRootDir = fileparts(strtok(mfilename('fullpath'), '+'));
                 % Include Paths
                 addIncludePaths(buildInfo, fullfile(spkgRootDir, 'include'));
                 %addIncludeFiles(buildInfo, 'MW_SerialRead.h');

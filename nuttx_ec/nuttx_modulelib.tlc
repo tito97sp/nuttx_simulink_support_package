@@ -1,0 +1,113 @@
+%function FcnGenerateNuttxModule() void
+
+    %%assign hFile = LibCreateSourceFile("Header", "Custom", "rt_main")
+    %openfile tmpHdrFcnBuf
+
+    #include <platform_common/module.h>
+    #include <platform_common/log.h>
+
+    extern "C" __EXPORT int_T %<LibGetMdlPubHdrBaseName()>_main(int_T argc, char_T *argv[]);
+
+    %closefile tmpHdrFcnBuf
+    
+    %<SLibCacheCodeToFile("mainHdr_incl", tmpHdrFcnBuf)>
+
+    %openfile tmpHdrFcnBuf
+
+
+
+    class %<LibGetMdlPubHdrBaseName()>_module : public ModuleBase<%<LibGetMdlPubHdrBaseName()>_module>
+    {
+    public:
+      %<LibGetMdlPubHdrBaseName()>_module(){}
+
+      virtual ~%<LibGetMdlPubHdrBaseName()>_module() = default;
+
+      /** @see ModuleBase */
+      static int_T task_spawn(int_T argc, char_T *argv[]);
+
+      /** @see ModuleBase */
+      static %<LibGetMdlPubHdrBaseName()>_module *instantiate(int_T argc, char_T *argv[]);
+
+      /** @see ModuleBase */
+      static int_T custom_command(int_T argc, char_T *argv[]);
+
+      /** @see ModuleBase */
+      static int_T print_usage(const char_T *reason = nullptr);
+
+      /** @see ModuleBase::run() */
+      void run() override;
+
+      /** @see ModuleBase::print_status() */
+      //int_T print_status() override;
+
+    private:
+    };
+
+    %closefile tmpHdrFcnBuf
+    
+    %<SLibCacheCodeToFile("mainHdr_incl", tmpHdrFcnBuf)>
+
+    %openfile tmpSrcFcnBuf
+
+    #include "rt_main.h"
+
+    %closefile tmpSrcFcnBuf
+
+    %<SLibCacheCodeToFile("mainSrc_incl", tmpSrcFcnBuf)>
+
+    %openfile tmpSrcFcnBuf
+
+    int_T %<LibGetMdlPubHdrBaseName()>_module::custom_command(int_T argc, char_T *argv[])
+    {
+        return print_usage("unknown command\n");
+    }
+
+    int_T %<LibGetMdlPubHdrBaseName()>_module::print_usage(const char_T *reason)
+    {
+        return 0;
+    }
+
+    int_T %<LibGetMdlPubHdrBaseName()>_module::task_spawn(int_T argc, char_T *argv[])
+    {
+        _task_id = os_task_spawn_cmd("%<LibGetMdlPubHdrBaseName()>",
+            SCHED_DEFAULT,
+            SCHED_PRIORITY_MAX,
+            1024,
+            (os_main_t)&run_trampoline,
+            (char_T *const *)argv);
+        if (_task_id < 0) {
+            _task_id = -1;
+            return -errno;
+        }
+
+        return 0;
+    }
+
+    %<LibGetMdlPubHdrBaseName()>_module *%<LibGetMdlPubHdrBaseName()>_module::instantiate(int_T argc, char_T *argv[])
+    {
+        %<LibGetMdlPubHdrBaseName()>_module *instance = new %<LibGetMdlPubHdrBaseName()>_module();
+        if (instance == nullptr) {
+            printf("alloc failed\n");
+        }
+
+        return instance;
+    }
+
+    void %<LibGetMdlPubHdrBaseName()>_module::run()
+    {
+        //Call module
+        %<LibGetMdlPubHdrBaseName()>_entryPoint();
+    }
+
+    int_T %<LibGetMdlPubHdrBaseName()>_main(int_T argc, char_T *argv[])
+    {
+        return %<LibGetMdlPubHdrBaseName()>_module::main(argc, argv);
+    }
+
+    %closefile tmpSrcFcnBuf
+
+    %<SLibCacheCodeToFile("mainSrc_fcn_defn", tmpSrcFcnBuf)>
+
+%endfunction
+

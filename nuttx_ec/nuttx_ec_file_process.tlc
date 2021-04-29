@@ -28,13 +28,13 @@
     	%include "nuttx_ec_srmain_ExtMode.tlc"
     %else
         %% Simplified main generation w/o External Mode
-    	%include "nuttx_ec_srmain.tlc"
+    	%include "nuttx_ec_srmain_monotasking.tlc"
     %endif
     %<FcnSingleTaskingMain()>
   %else
   	%% For the moment, multitasking is not supported
-    %include "nuttx_ec_srmain.tlc"
-    %<FcnSingleTaskingMain()>
+    %include "nuttx_ec_ertposixthread.tlc"
+    %<SLibGenerateThreadedMain()>
   %endif
 
 %else

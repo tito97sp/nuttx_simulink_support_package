@@ -35,7 +35,7 @@ classdef Subscriber < matlab.System & ...
     %
     properties(Nontunable)
         %SLBusName Simulink Bus Name for message type
-        SLBusName = 'px4_Bus'
+        SLBusName = 'nuttx_Bus'
     end
     properties (Nontunable,Access=private)
         ConnectHandle
@@ -60,11 +60,11 @@ classdef Subscriber < matlab.System & ...
     properties(Constant,Access=private)
         % Name of header file with declarations for variables and types
         % referred to in code emitted by setupImpl and stepImpl.
-        HeaderFile = px4.internal.cgen.Constants.uORBReadCode.HeaderFile
+        HeaderFile = nuttx.internal.cgen.Constants.uORBReadCode.HeaderFile
     end
     
     properties (Access = ...
-            {?px4.internal.block.Subscriber, ...
+            {?nuttx.internal.block.Subscriber, ...
             ?matlab.unittest.TestCase})
         %SampleTimeHandler - Object for validating sample time settings
         SampleTimeHandler
@@ -184,25 +184,25 @@ classdef Subscriber < matlab.System & ...
             
             if coder.target('MATLAB')
                 %ConnectedI/O
-                if matlabshared.svd.internal.isSimulinkIoEnabled
-                    try
-                        %create handles required for Connected IO
-                        %handle class to manage deployment and connection to IO server
-                        obj.ConnectHandle = matlabshared.ioclient.DeployAndConnectHandle;
-                        obj.ConnectHandle.getConnectedIOClient;
-                        %uORB IO wrapper class to read and write data
-                        obj.uORBIOHandle = px4.internal.ConnectedIO.uORBIO;
-                        %get uORBID - unique numeric value correspond to individual uORB
-                        %message
-                        uORBID = uint8(px4.internal.ConnectedIO.uORBMsgMap.(obj.uORBTopicInstance));
-                        %uORB init
-                        [obj.orbMetadataObj,obj.eventStructObj] = uORBReadInitialize (obj.uORBIOHandle, obj.ConnectHandle.IoProtocol, uORBID);
-                    catch exception
-                        %remove the IO client object in case of error
-                        obj.ConnectHandle.deleteConnectedIOClient();
-                        throw(exception);
-                    end
-                end
+                % if matlabshared.svd.internal.isSimulinkIoEnabled
+                %     try
+                %         %create handles required for Connected IO
+                %         %handle class to manage deployment and connection to IO server
+                %         obj.ConnectHandle = matlabshared.ioclient.DeployAndConnectHandle;
+                %         obj.ConnectHandle.getConnectedIOClient;
+                %         %uORB IO wrapper class to read and write data
+                %         obj.uORBIOHandle = px4.internal.ConnectedIO.uORBIO;
+                %         %get uORBID - unique numeric value correspond to individual uORB
+                %         %message
+                %         uORBID = uint8(px4.internal.ConnectedIO.uORBMsgMap.(obj.uORBTopicInstance));
+                %         %uORB init
+                %         [obj.orbMetadataObj,obj.eventStructObj] = uORBReadInitialize (obj.uORBIOHandle, obj.ConnectHandle.IoProtocol, uORBID);
+                %     catch exception
+                %         %remove the IO client object in case of error
+                %         obj.ConnectHandle.deleteConnectedIOClient();
+                %         throw(exception);
+                %     end
+                % end
             elseif coder.target('RtwForRapid')
                 % Rapid Accelerator. In this mode, coder.target('Rtw')
                 % returns true as well, so it is important to check for
@@ -211,7 +211,7 @@ classdef Subscriber < matlab.System & ...
                 
             elseif coder.target('Rtw')
                 coder.cinclude(obj.HeaderFile);
-                px4.internal.cgen.Constants.includeCommonHeaders();
+                nuttx.internal.cgen.Constants.includeCommonHeaders();
                 
                 obj.eventStructObj = coder.opaque('pollfd_t');
                 addr = coder.const(['ORB_ID(' obj.uORBTopicInstance ')']);
@@ -232,11 +232,10 @@ classdef Subscriber < matlab.System & ...
             else
                 % 'RtwForSim' - ModelReference SIM target
                 % 'MEX', 'HDL', 'Custom' - Not applicable to MATLAB System block
-                coder.internal.errorIf(true, 'px4:sysobj:UnsupportedCodegenMode');
+                coder.internal.errorIf(true, 'nuttx:sysobj:UnsupportedCodegenMode');
             end
         end
-        
-        
+           
         %%
         function [isNewData, msg] = stepImpl(obj, busstruct)
             % <busstruct> is a blank (empty) bus structure. It is necessary
@@ -259,17 +258,17 @@ classdef Subscriber < matlab.System & ...
             
             if coder.target('MATLAB')
                 %Connected I/O
-                if matlabshared.svd.internal.isSimulinkIoEnabled
-                    try
-                        [msg,isNewData] = uORBReadMessage (obj.uORBIOHandle, obj.ConnectHandle.IoProtocol, obj.orbMetadataObj, ...
-                            obj.eventStructObj, obj.BlockingMode, (obj.BlockTimeout)*1000,busstruct);
-                        isNewData = boolean(isNewData);
-                    catch exception
-                        %call releaseImpl case of error
-                        releaseImpl(obj)
-                        throw(exception);
-                    end
-                end
+                % if matlabshared.svd.internal.isSimulinkIoEnabled
+                %     try
+                %         [msg,isNewData] = uORBReadMessage (obj.uORBIOHandle, obj.ConnectHandle.IoProtocol, obj.orbMetadataObj, ...
+                %             obj.eventStructObj, obj.BlockingMode, (obj.BlockTimeout)*1000,busstruct);
+                %         isNewData = boolean(isNewData);
+                %     catch exception
+                %         %call releaseImpl case of error
+                %         releaseImpl(obj)
+                %         throw(exception);
+                %     end
+                % end
             elseif coder.target('Rtw')
                 isBlocking = obj.BlockingMode;
                 msg = coder.nullcopy(busstruct);
@@ -288,10 +287,10 @@ classdef Subscriber < matlab.System & ...
             
             if coder.target('MATLAB')
                 %Connected I/O
-                if matlabshared.svd.internal.isSimulinkIoEnabled
-                    obj.ConnectHandle.deleteConnectedIOClient();
-                    uORBReadRelease (obj.uORBIOHandle, obj.ConnectHandle.IoProtocol, obj.eventStructObj);
-                end
+                % if matlabshared.svd.internal.isSimulinkIoEnabled
+                %     obj.ConnectHandle.deleteConnectedIOClient();
+                %     uORBReadRelease (obj.uORBIOHandle, obj.ConnectHandle.IoProtocol, obj.eventStructObj);
+                % end
             elseif coder.target('Rtw')
                 coder.ceval('uORB_read_terminate', coder.rref(obj.eventStructObj));
             end
@@ -301,7 +300,7 @@ classdef Subscriber < matlab.System & ...
     
     methods (Static)
         function name = getDescriptiveName()
-            name = 'PX4 uORB Read and Write';
+            name = 'Nuttx uORB Read and Write';
         end
         
         function b = isSupportedContext(context)
@@ -311,12 +310,12 @@ classdef Subscriber < matlab.System & ...
         function updateBuildInfo(buildInfo, context)
             % Update the build-time buildInfo
             if context.isCodeGenTarget('rtw')
-                spkgRootDir = codertarget.pixhawk.internal.getSpPkgRootDir ;
+                spkgRootDir = fileparts(strtok(mfilename('fullpath'), '+'));
                 % Include Paths
                 addIncludePaths(buildInfo, fullfile(spkgRootDir, 'include'));
                 % Source Files
                 systemTargetFile = get_param(buildInfo.ModelName,'SystemTargetFile');
-                if isequal(systemTargetFile,'ert.tlc')
+                if isequal(systemTargetFile,'nuttx_ec.tlc')
                     % Add the following when not in rapid-accel simulation
                     addSourcePaths(buildInfo, fullfile(spkgRootDir, 'src'));
                     addSourceFiles(buildInfo, 'MW_uORB_Read.cpp', fullfile(spkgRootDir, 'src'));
