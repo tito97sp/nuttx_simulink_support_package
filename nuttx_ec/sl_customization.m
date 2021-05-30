@@ -1,5 +1,5 @@
 function sl_customization(cm)
-% SL_CUSTOMIZATION for Arduino_EC PIL connectivity config
+% SL_CUSTOMIZATION for Nuttx PIL connectivity config
 
 % Copyright 2008-2014 The MathWorks, Inc.
 

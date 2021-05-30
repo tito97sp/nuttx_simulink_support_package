@@ -15,7 +15,7 @@ function config = loc_createToolchain
     arch = computer('arch') ;
     config(end).Name           = 'GNU Tools for Nuttx based boards';
     config(end).Alias          = ['GNU_NUTTX_' upper(arch)]; % internal use only
-    config(end).FileName       = fullfile(rootDir, ['gnu_gcc_px4_embedded_gmake_' arch '_v7.2.1.mat']);
+    %config(end).FileName       = fullfile(rootDir, ['gnu_gcc_px4_embedded_gmake_' arch '_v7.2.1.mat']);
     config(end).TargetHWDeviceType = {'*'};
     config(end).Platform           = {arch};
 
