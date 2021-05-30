@@ -58,7 +58,7 @@ function CreateCMakelist(hCS,buildInfo)
     % Add CMakeLists.txt to the list of files to be copied
     FullfilePathsFiltered_List = [FullfilePathsFiltered_List, fullfile(pwd, 'CMakeLists.txt') ];
 
-    Destination_Dir = fullfile(nuttx.internal.util.CommonUtility.getNuttxFirmwareDir, 'src','modules', buildInfo.ComponentName);
+    Destination_Dir = fullfile(nuttx.internal.util.CommonUtility.getNuttxFirmwareDir, 'src','modules', buildInfo.ModelName);
 
     if (exist(Destination_Dir, 'dir') == 0)
         [~, ~, ~] = mkdir(Destination_Dir);
@@ -151,10 +151,10 @@ function writeCMakeListsTxt(hCS,...
     % Populate px4_add_module
     hs.addcr('add_module('); % Start of px4_add_module
     hs.add(sprintf('   MODULE '));
-    hs.addcr(buildInfo.ComponentName);
+    hs.addcr(buildInfo.ModelName);
     %hs.addcr(')');
     hs.add(sprintf('   MAIN '));
-    hs.addcr(buildInfo.ComponentName);
+    hs.addcr(buildInfo.ModelName);
     %hs.addcr(')');
     hs.addcr(sprintf('   STACK_MAIN %d',2000));
     hs.addcr('   SRCS');
@@ -166,8 +166,11 @@ function writeCMakeListsTxt(hCS,...
     end
 
     % Add compilation flags
-    compileFlags = {'-fpermissive', ...         % To relax the data-type conversions
-        '-Wno-narrowing'};      % To allow narrowing conversions in bus structure
+    compileFlags = {...
+        '-fpermissive', ...             % To relax the data-type conversions
+        '-Wno-narrowing',...            % To allow narrowing conversions in bus structure
+        '-Wno-float-equal'};      
+
     hs.addcr('   COMPILE_FLAGS');
     for k = 1:numel(compileFlags)
         hs.addcr(sprintf('      %s', compileFlags{k}));
@@ -216,20 +219,20 @@ function writeCMakeListsTxt(hCS,...
     %PX4_SL_APP_COMPILE_FLAGS modules__px4_simulink_app COMPILE_OPTIONS
     % Remove the Werror flag required for compilation
     hs.add('#get_target_property(SL_');
-    hs.add(buildInfo.ComponentName);
+    hs.add(buildInfo.ModelName);
     hs.add('_COMPILE_FLAGS modules__nuttx_simulink_' );
-    hs.add(buildInfo.ComponentName);
+    hs.add(buildInfo.ModelName);
     hs.addcr(' COMPILE_OPTIONS)');
 
     hs.add('#list(REMOVE_ITEM SL_');
-    hs.add(buildInfo.ComponentName);
+    hs.add(buildInfo.ModelName);
     hs.addcr('_COMPILE_FLAGS -Werror)');
 
 
     hs.add('#set_target_properties(modules__nuttx_simulink_');
-    hs.add(buildInfo.ComponentName);
+    hs.add(buildInfo.ModelName);
     hs.add(' PROPERTIES COMPILE_OPTIONS "${SL_');
-    hs.add(buildInfo.ComponentName);
+    hs.add(buildInfo.ModelName);
     hs.add('_COMPILE_FLAGS}")');
     hs.addcr();
 
