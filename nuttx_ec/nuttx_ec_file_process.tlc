@@ -33,7 +33,7 @@
     %<FcnSingleTaskingMain()>
   %else
     %% %include "nuttx_ec_srmain_multitasking.tlc"
-    %include "nuttx_ec_ertposixthread.tlc"
+    %include "nuttx_ec_multitasking.tlc"
     %<SLibGenerateThreadedMain()>
     %% %<FcnMultiTaskingMain()>
   %endif
