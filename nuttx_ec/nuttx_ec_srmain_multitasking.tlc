@@ -177,26 +177,26 @@
   }
 }
 
-static void *%<LibGetMdlPubHdrBaseName()>_main_timer_thread(FAR void *para)
-{
-  int status;
-  
-  %<LibCallModelInitialize()>\
+  static void *%<LibGetMdlPubHdrBaseName()>_main_timer_thread(FAR void *para)
+  {
+    int status;
+    
+    %<LibCallModelInitialize()>\
 
-  while (1)
-    {
-      status = pthread_mutex_lock(&%<LibGetMdlPubHdrBaseName()>_mutex);
-      status = pthread_cond_wait(&%<LibGetMdlPubHdrBaseName()>_condition, &%<LibGetMdlPubHdrBaseName()>_mutex);
-      status = pthread_mutex_unlock(&%<LibGetMdlPubHdrBaseName()>_mutex);
+    while (1)
+      {
+        status = pthread_mutex_lock(&%<LibGetMdlPubHdrBaseName()>_mutex);
+        status = pthread_cond_wait(&%<LibGetMdlPubHdrBaseName()>_condition, &%<LibGetMdlPubHdrBaseName()>_mutex);
+        status = pthread_mutex_unlock(&%<LibGetMdlPubHdrBaseName()>_mutex);
 
-      DEBUG("%<LibGetMdlPubHdrBaseName()> step\n");
-      %<LibCallModelStep(0)>\
-    }
-  
-  %<LibCallModelTerminate()>\
-  pthread_exit(NULL);
-  return NULL; /* Non-reachable -- needed for some compilers */
-}
+        DEBUG("%<LibGetMdlPubHdrBaseName()> step\n");
+        %<LibCallModelStep(0)>\
+      }
+    
+    %<LibCallModelTerminate()>\
+    pthread_exit(NULL);
+    return NULL; /* Non-reachable -- needed for some compilers */
+  }
 
 
   void %<LibGetMdlPubHdrBaseName()>Module::run()
@@ -299,17 +299,16 @@ static void *%<LibGetMdlPubHdrBaseName()>_main_timer_thread(FAR void *para)
 
 %function FcnMultiTaskingMain() void
 
-  
-  %%if GenerateSampleERTMain
-   %%assign CompiledModel.GenerateSampleERTMain = TLC_FALSE
-  %%endif
+  %if GenerateSampleERTMain
+    %assign CompiledModel.GenerateSampleERTMain = TLC_FALSE
+  %endif
 
-  %%if LibIsModelReferenceTarget()
-    %%return
-  %%endif
+  %if LibIsModelReferenceTarget()
+    %return
+  %endif
 
-  %%<createNuttxModuleHeader()>
-  %%<createNuttxModuleSource()>
+  %<createNuttxModuleHeader()>
+  %<createNuttxModuleSource()>
   
 %endfunction
 

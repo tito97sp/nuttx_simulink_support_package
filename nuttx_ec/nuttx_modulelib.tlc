@@ -1,5 +1,6 @@
 %function FcnGenerateNuttxModule() void
 
+    
     %%assign hFile = LibCreateSourceFile("Header", "Custom", "rt_main")
     %openfile tmpHdrFcnBuf
 

@@ -32,14 +32,14 @@
     %endif
     %<FcnSingleTaskingMain()>
   %else
-  	%% For the moment, multitasking is not supported
+    %% %include "nuttx_ec_srmain_multitasking.tlc"
     %include "nuttx_ec_ertposixthread.tlc"
     %<SLibGenerateThreadedMain()>
+    %% %<FcnMultiTaskingMain()>
   %endif
 
 %else
    %% Prepared for the future
-   %include "nuttx_ec_RTOS_main.tlc"
-   %<FcnSingleTaskingMain()>
-
+  %%  %include "nuttx_ec_RTOS_main.tlc"
+  %%  %<FcnMultiTaskingMain()>
 %endif

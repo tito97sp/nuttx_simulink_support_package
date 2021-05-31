@@ -304,7 +304,7 @@
     %assign numTasks = LibGetNumTriggerTasks(ehIdx)
     %if (numTasks > 1)
       %assign indexVar = "i"
-      int_T %<indexVar>;
+      int_T %<indexVar>; 
     %endif
 
     %if ::MultiInstanceERTCode && !::UsingMalloc  && !::GenerateClassInterface
@@ -332,7 +332,8 @@
       %assign comma = ","
     %endforeach
 
-    %assign equalSign = LibGetDataInitEqualSign()
+    %% %assign equalSign = LibGetDataInitEqualSign()
+    %assign equalSign = " ="
     %if (numTasks > 1) && (!RootSystemIsSingleRate)
       int_T taskCounters[%<numTasks>]%<equalSign>{%<initStr>};
       int_T taskTicks[%<numTasks>]%<equalSign>{%<initStr3>};
