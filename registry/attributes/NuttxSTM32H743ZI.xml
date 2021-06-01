@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<productinfo version="2.0">
+    <name>Deployer Tools for Nuttx</name>    
+    <enableoneclick>true</enableoneclick>
+    <externalmodeinfo preconnectfcn="pause(5);">
+        <name>Ethernet External Mode</name>
+        <sourcefiletoskip>rtiostream_tcpip.c</sourcefiletoskip>
+        <transport type="tcp/ip" name="tcpip">
+            <iointerfacename>TCP/IP</iointerfacename>
+            <verbose value="0" visible="true"/>
+            <port value ="17725" visible="false"/>
+            <ipaddress value ="127.0.0.1" visible="false"/>
+        </transport>
+        <codertargetparameter name="Runtime.BuildAction" value="Build, load and run"/>
+    </externalmodeinfo>
+    <pilinfo>
+        <Name>Ethernet PIL</Name>
+        <Transport Port="17725" IPAddress="127.0.0.1">
+            <Type>tcp/ip</Type>
+            <Name>Ethernet PIL</Name>
+            <IOInterfaceName>TCP/IP</IOInterfaceName>
+        </Transport>
+    </pilinfo>   
+</productinfo>
+<!-- Copyright 2018-2019 The MathWorks, Inc. -->

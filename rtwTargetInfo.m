@@ -1,8 +1,25 @@
 function rtwTargetInfo(tr)
 target = loc_registerThisTarget();
 codertarget.target.checkReleaseCompatibility(target);
+tr.registerTargetInfo(@loc_createPILConfig);
 codertarget.TargetRegistry.addToTargetRegistry(@loc_registerThisTarget);
 codertarget.TargetBoardRegistry.addToTargetBoardRegistry(@loc_registerBoardsForThisTarget);
+end
+ 
+% -------------------------------------------------------------------------
+function isConfigSetCompatible =i_isConfigSetCompatible(configSet)
+isConfigSetCompatible = false;
+if configSet.isValidParam('CoderTargetData')
+data = getParam(configSet,'CoderTargetData');
+targetHardware = data.TargetHardware;
+hwSupportingPIL = { 'Nuttx STM32H743ZI' };
+for i=1:numel(hwSupportingPIL)
+if isequal(hwSupportingPIL{i},targetHardware)
+isConfigSetCompatible = true;
+break
+end
+end
+end
 end
  
 % -------------------------------------------------------------------------
@@ -21,3 +38,14 @@ ret.TargetFolder = targetFilePath;
 ret.TargetVersion = 1;
 ret.AliasNames = {};
 end
+
+% -------------------------------------------------------------------------
+function config =loc_createPILConfig
+config(1) = rtw.connectivity.ConfigRegistry;
+config(1).ConfigName = 'Nuttx PIL';
+config(1).ConfigClass = 'codertarget.nuttx.pil.ConnectivityConfig';
+config(1).HardwareBoard = {'Nuttx STM32H743ZI'};
+config(1).isConfigSetCompatibleFcn = @i_isConfigSetCompatible;
+end
+
+ 
