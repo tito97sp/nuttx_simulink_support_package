@@ -6,7 +6,7 @@ classdef MakefileBuilder < rtw.connectivity.MakefileBuilder
     
     methods
         % constructor
-        function this = PX4MakefileBuilder(componentArgs, ...
+        function this = MakefileBuilder(componentArgs, ...
                                         targetApplicationFramework, ...
                                         exeExtension)
            
@@ -43,10 +43,7 @@ classdef MakefileBuilder < rtw.connectivity.MakefileBuilder
             
             %update CMAKELIST for PIL
             %codertarget.pixhawk.internal.UpdatePX4CMakelistforPIL(buildInfo);
-            
-            if(status)
-                error(message('CMAKELIST creation');
-            end
+                       
             
             %copy px4 file to the rtw pil folder
             %pilFolder = this.getComponentArgs.getApplicationCodePath;

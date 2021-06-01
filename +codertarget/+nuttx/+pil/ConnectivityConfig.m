@@ -50,9 +50,6 @@ classdef ConnectivityConfig < rtw.connectivity.Config
             hostCommunicator.setTimeoutRecvSecs(timeoutReadDataSecs);
 
 
-            fprintf('### IP: %s\n', IP);  
-            fprintf('### port: %s\n', port);
-
             % Choose a port number for TCP (for both host and target)
             if usejava('jvm')
                 % Find a free port
