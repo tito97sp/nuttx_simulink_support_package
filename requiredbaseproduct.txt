@@ -1,9 +1,0 @@
-##############################################################
-# It contains the full legal name of the base product required.
-# This is to conform to the ASLA support packages license as
-# per guidance from the Legal Services team.
-#
-# Copyright 2020 The MathWorks, Inc.
-##############################################################
-
-UAV Toolbox

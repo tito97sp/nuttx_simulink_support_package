@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<productinfo>
+   <name>Nuttx STM32H743ZI</name>
+   <parametergroup>
+      <name>Clocking</name>
+      <parameter Alignment="1" Callback="widgetChangedCallback" ColSpan="[1,3]" Data=""
+                 DialogRefresh="1"
+                 DoNotStore="false"
+                 Enabled="1"
+                 Entries=""
+                 Name="CPU Clock (MHz):"
+                 RowSpan="[0,0]"
+                 SaveValueAsString="true"
+                 Storage="Clocking.cpuClockRateMHz"
+                 Tag="CPU_Clock_in_MHz"
+                 ToolTip=""
+                 Type="edit"
+                 Value="100"
+                 ValueRange=""
+                 ValueType=""
+                 Visible="1"/>
+   </parametergroup>
+</productinfo>

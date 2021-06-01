@@ -1,5 +1,5 @@
 function setup_customtarget_nuttx
-%%   Arduino setup
+%%   Nuttx setup
 %   Copyright 2012-2014 The MathWorks, Inc. 
 %
 
@@ -25,16 +25,6 @@ end
 %% Register PIL/ExtMode communication interface
 %sl_refresh_customizations
 
-%% Set path for Arduino software. It's highly recommended version 1.0.5 or later
-% Download from http://arduino.cc/en/Main/Software
-
-%arduino_ec.Prefs.setArduinoPath('c:\Arduino-1.0.5')
-
-% Set board version (uno, mega, mega2560, leonardo, ...
-%arduino_ec.Prefs.setBoard('uno');  % Choose a specific board name
-                                % List of valid names is under 
-                                % c:\arduino-1.0.5\hardware\arduino\boards.txt 
-
 % Set PIL/ExtMode communication speed
 %arduino_ec.Prefs.setPILSpeed(115200);  % PIL/ExtMode serial port speed
 
@@ -50,15 +40,3 @@ end
 % arduino_ec.Prefs.setComPort(comPorts{1});
 % end
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-%   Newer avr-gcc compilers (4.7.2, 4.8.0 and 4.8.2)
-%
-%       Sourceforge (Version 4.8.0)
-%       http://sourceforge.net/projects/mobilechessboar/files/avr-gcc%20snapshots%20(Win32)
-%
-%       Version 4.8.2 and older
-%       https://infernoembedded.com/products/avr-tools
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
