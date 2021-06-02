@@ -42,16 +42,10 @@ classdef MakefileBuilder < rtw.connectivity.MakefileBuilder
             this.build@rtw.connectivity.MakefileBuilder(buildInfo, lXilCompInfo, varargin{:})
             
             %update CMAKELIST for PIL
-            %codertarget.pixhawk.internal.UpdatePX4CMakelistforPIL(buildInfo);
+            codertarget.nuttx.internal.UpdateCMakelistforPIL(buildInfo);
                        
-            
-            %copy px4 file to the rtw pil folder
-            %pilFolder = this.getComponentArgs.getApplicationCodePath;
-            %ConfigCMake = codertarget.pixhawk.internal.getPX4CmakeConfig;
-            %firmwareImagePath = fullfile(px4.internal.util.CommonUtility.getPX4FirmwareBuildDir ,[ConfigCMake,'.px4']);
-            %copyfile(firmwareImagePath,pilFolder);
-            %rename the px4 application to [model name].px4
-            %movefile(fullfile(pilFolder,[ConfigCMake,'.px4']),fullfile(pilFolder,[buildInfo.ModelName,'.px4']))
+            %build processs
+            %hand-process by the moment.
 
           end
         

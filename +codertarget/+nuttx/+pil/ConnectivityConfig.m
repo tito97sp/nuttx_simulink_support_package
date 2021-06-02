@@ -10,7 +10,7 @@ classdef ConnectivityConfig < rtw.connectivity.Config
             % A target application framework specifies additional source files and libraries
             % required for building the executable
             targetApplicationFramework = ...
-                codertarget.nuttx.pil.TargetApplicationFramework(componentArgs);
+                codertarget.nuttx.pil.SerialTargetApplicationFramework(componentArgs);
             
             
             % Create an instance of MakefileBuilder; this works in conjunction with your
@@ -22,13 +22,9 @@ classdef ConnectivityConfig < rtw.connectivity.Config
             % Launcher
             launcher = codertarget.nuttx.pil.Launcher(componentArgs, builder);
             
-            % File extension for shared libraries (e.g. .dll on Windows)
-            [~, ~, sharedLibExt] = coder.BuildConfig.getStdLibInfo;
-            %sharedLibExt = system_dependent('GetSharedLibExt');
-
-            % Evaluate name of the rtIOStream shared library
-            rtiostreamLib = ['libmwrtiostreamtcpip' sharedLibExt];
-            
+            % Host side rtiostream communication
+            sharedLibExt = system_dependent('GetSharedLibExt');
+            rtiostreamLib = ['libmwrtiostreamserial' sharedLibExt];
             hostCommunicator = rtw.connectivity.RtIOStreamHostCommunicator(...
                 componentArgs, ...
                 launcher, ...
@@ -64,7 +60,7 @@ classdef ConnectivityConfig < rtw.connectivity.Config
             % Specify additional arguments when starting the           
             % executable (this configures the target-side of the       
             % communications channel)                                  
-            launcher.setArgString(['-port ' portNumStr ' -blocking 1'])
+            %launcher.setArgString(['-port ' portNumStr ' -blocking 1'])
 
             % Custom arguments that will be passed to the              
             % rtIOStreamOpen function in the rtIOStream shared        
