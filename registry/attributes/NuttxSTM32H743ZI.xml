@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <productinfo version="2.0">
-    <name>Deployer Tools for Nuttx</name>    
+    <name>Nuttx Toolchain</name>    
     <enableoneclick>true</enableoneclick>
     <externalmodeinfo preconnectfcn="pause(5);">
         <name>Ethernet External Mode</name>
@@ -21,5 +21,7 @@
             <IOInterfaceName>TCP/IP</IOInterfaceName>
         </Transport>
     </pilinfo>   
+    <onaftercodegenhook>codertarget.nuttx.internal.onAfterCodeGen</onaftercodegenhook>
+    <onbuildentryhook>codertarget.nuttx.internal.onBuildEntryHook</onbuildentryhook>
 </productinfo>
 <!-- Copyright 2018-2019 The MathWorks, Inc. -->

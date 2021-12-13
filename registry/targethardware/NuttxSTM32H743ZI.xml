@@ -7,7 +7,10 @@
    <productionhwdevicetype>ARM Compatible-&gt;ARM Cortex</productionhwdevicetype>
    <enableprodhwdevicetype>false</enableprodhwdevicetype>
    <supportsonlysimulation>false</supportsonlysimulation>
-   <systemtargetfile>nuttx_ec</systemtargetfile>
+   <toolchain name="Nuttx Toolchain" IsLoadCommandMATLABFcn="true">
+        <loadcommand> </loadcommand>  
+        <loadcommandargs> </loadcommandargs>
+    </toolchain>
    <parameterinfo>$(TARGET_ROOT)/registry/parameters/NuttxSTM32H743ZI.xml</parameterinfo>
    <attributeinfo>$(TARGET_ROOT)/registry/attributes/NuttxSTM32H743ZI.xml</attributeinfo>
    <esbcompatible>0</esbcompatible>

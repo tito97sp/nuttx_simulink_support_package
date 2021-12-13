@@ -1,6 +1,7 @@
 function rtwTargetInfo(tr)
 target = loc_registerThisTarget();
 codertarget.target.checkReleaseCompatibility(target);
+tr.registerTargetInfo(@loc_createToolchain);
 tr.registerTargetInfo(@loc_createPILConfig);
 codertarget.TargetRegistry.addToTargetRegistry(@loc_registerThisTarget);
 codertarget.TargetBoardRegistry.addToTargetBoardRegistry(@loc_registerBoardsForThisTarget);
@@ -38,6 +39,20 @@ ret.TargetFolder = targetFilePath;
 ret.TargetVersion = 1;
 ret.AliasNames = {};
 end
+
+%--------------------------------------------------------------------------
+function config = loc_createToolchain
+rootDir = fileparts(mfilename('fullpath'));
+config = coder.make.ToolchainInfoRegistry; % initialize
+arch = computer('arch') ;
+config(end).Name           = 'Nuttx Toolchain';
+config(end).Alias          = 'Nuttx_Toolchain'; % internal use only
+config(end).FileName       = fullfile(rootDir, 'gnu_gcc_nuttx_embedded.mat');
+config(end).TargetHWDeviceType = {'*'};
+config(end).Platform           = {arch};
+
+end
+
 
 % -------------------------------------------------------------------------
 function config =loc_createPILConfig

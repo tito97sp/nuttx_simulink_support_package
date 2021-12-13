@@ -14,8 +14,10 @@ slConfigUISetVal(hDlg, hSrc, 'ProdEqTarget', 'on');
 slConfigUISetVal(hDlg, hSrc, 'TargetLang', 'C++');
 
 % Setup the hardware configuration
-slConfigUISetVal(hDlg, hSrc, 'ProdHWDeviceType', 'ARM Compatible->ARM Cortex-M');
-slConfigUISetVal(hDlg, hSrc, 'ProdLongLongMode', 'on');
+% slConfigUISetVal(hDlg, hSrc, 'ProdHWDeviceType', 'ARM Compatible->ARM Cortex-M');
+% slConfigUISetVal(hDlg, hSrc, 'ProdLongLongMode', 'on');
+
+% slConfigUISetVal(hDlg, hSrc, 'HardwareBoard', 'Nuttx STM32H743ZI');
 
 % Set the TargetLibSuffix
 slConfigUISetVal(hDlg, hSrc, 'TargetLibSuffix', '.a');

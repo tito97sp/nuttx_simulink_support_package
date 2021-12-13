@@ -21,4 +21,4 @@ config.SystemTargetFile = {'nuttx_ec.tlc'};
 config.TemplateMakefile = {'nuttx_ec.tmf'};
 
 % match any hardware implementation
-config.TargetHWDeviceType = {};
+%config.TargetHWDeviceType = {'*'};
